@@ -1,10 +1,18 @@
 import { StatusBar } from 'expo-status-bar';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';
+import { useEffect, useState } from 'react';
+
+var url= "https://65462ad3fe036a2fa955498e.mockapi.io/DATAJOB";
 
 export default function App() {
+    var rou = useRoute();
+    var [job,setJob] = useState('');
+    var jobchange = (inputjob) =>{
+        setJob(inputjob);
+    }
     var nav = useNavigation();
     return (
     <View style={{flex:1,alignItems:'center'}}>
@@ -21,9 +29,30 @@ export default function App() {
         <Text style={{marginTop:50,width:228,height:48,textAlign: 'center', color: '#171A1F', fontSize: 29, fontFamily: 'Arial', fontWeight: '700', lineHeight: 48}}>ADD YOUR JOB</Text>
         <View style={{marginTop:30,flexDirection:'row',width:334,height:44,border: '1px #9095A0 solid',borderRadius:5,alignItems:'center'}}>
             <Image source={require('../assets/job.png')} style={{width:25,height:25,resizeMode:'contain',marginLeft:10}}/>
-            <TextInput style={{marginLeft:10,height:44,fontFamily:'Arial',color:'#171A1F'}} placeholder='input your job'></TextInput>
+            <TextInput style={{marginLeft:10,height:44,fontFamily:'Arial',color:'#171A1F'}} 
+                placeholder='input your job'
+                onChangeText={jobchange}
+                value={job}
+            ></TextInput>
         </View>
-        <Pressable style={{marginTop:63}} onPress={()=>nav.navigate("Screen2")}>
+        <Pressable style={{marginTop:63}} onPress={()=>{
+            nav.navigate("Screen2",{jobb:job},()=>{}),
+            console.log(job)
+            fetch(url, {
+                method: "POST",
+                body: JSON.stringify({
+                    job: job,
+                }),
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json; charset=UTF-8',
+                },
+            }).then((res) => {
+                res.json();
+                console.log(typeof job);
+                console.log(res.bodyUsed);
+            })
+        }}>
             <Text style={{textAlign:'center',paddingTop:11,color:'white',width:190,height:44,backgroundColor:'#00BDD6',borderRadius:20}}>
                 FINISH {`->`}
             </Text>

@@ -1,6 +1,6 @@
 import { StatusBar } from 'expo-status-bar';
 import { Image, StyleSheet, Text, TextInput, View } from 'react-native';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer, useNavigation, useRoute } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { Pressable } from 'react-native';
 import { useEffect, useState } from 'react';
@@ -9,17 +9,19 @@ var data = [];
 var url= "https://65462ad3fe036a2fa955498e.mockapi.io/DATAJOB";
 
 export default function App() {
+    var rou = useRoute();  
     var [data,setData] = useState([]);
     var nav = useNavigation();
     
-    useEffect(()=>{
+    var fc = ()=> {
         fetch(url)
         .then(response => response.json())
         .then(json => {
             data = json,
             setData(data)
         });
-    }, []);
+    };
+    useEffect(fc, []);
     return (
         <View style={{flex:1,alignItems:'center'}}>
             <View style={{alignItems:'center',flexDirection:'row',width:390,height:60}}>
@@ -41,8 +43,19 @@ export default function App() {
                     <View style={{width:330,height:50,marginBottom:17,flexDirection: "row",alignItems:'center',borderRadius: 30,
                     backgroundColor: '#DCDCDC'}} key={item.id}>
                         <Image source={require('../assets/tick.png')} style={{marginLeft:20,width:24,height:24,resizeMode:'contain'}} />
-                        <Text style={{width:150,height:24,marginLeft:10,marginRight:80,color: '#171A1F', fontSize: 14, fontFamily: 'Arial', fontWeight: '700', lineHeight: 26, wordWrap: 'break-word'}}>{item.job}</Text>
-                        <Image source={require('../assets/edit.png')} style={{width:24,height:24,resizeMode:'contain'}} />
+                        <Text style={{width:155,height:24,marginLeft:10,marginRight:10,color: '#171A1F', fontSize: 14, fontFamily: 'Arial', fontWeight: '700', lineHeight: 26, wordWrap: 'break-word'}}>{item.job}</Text>
+                        <Pressable onPress={()=>{
+                            var link = url + "/" + item.id;
+                            fetch(link, {
+                              method: "DELETE",
+                            }).then((result) => {
+                              console.log(result);
+                              if (result.ok) fc();
+                            });
+                        }}>
+                            <Text style={{borderRadius:10,textAlign:'center',width:60,height:24,marginLeft:10,backgroundColor:'red',fontFamily:'Arial',fontWeight:'700',lineHeight: 26, wordWrap: 'break-word'}}>Delete</Text>
+                        </Pressable>
+                        <Image source={require('../assets/edit.png')} style={{marginLeft:10,width:24,height:24,resizeMode:'contain'}} />
                     </View>
                 );
             })}
